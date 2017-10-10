@@ -11,6 +11,10 @@ module Data.ArrayBuffer.DataView
   , byteOffset'
   , getInt8
   , setInt8
+  , getInt16be
+  , setInt16be
+  , getInt16le
+  , setInt16le
   ) where
 
 import Control.Monad.Eff (Eff)
@@ -19,7 +23,7 @@ import Data.Function ((>>>))
 import Data.Function.Uncurried (Fn3, Fn4, Fn5, runFn3, runFn4, runFn5)
 import Data.Semigroup ((<>))
 import Data.Show (class Show, show)
-import Data.Typelevel.Num (class Add, class Lt, class LtEq, class Nat, class Pos, D0, toInt)
+import Data.Typelevel.Num (class Add, class Lt, class LtEq, class Nat, class Pos, D0, D1, toInt)
 import Data.Typelevel.Undefined (undefined)
 import Data.Unit (Unit)
 
@@ -74,6 +78,8 @@ foreign import get :: ∀ e s o l r.
 foreign import set :: ∀ e s o l r.
                       Fn5 String Int r Endianness (DataView s o l) (Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit)
 
+-- TODO: custom type error messages
+
 -- | Fetch int8 value at a certain index in a `DataView`.
 getInt8 :: ∀ e s o l i .
            Nat i => Lt i l =>
@@ -85,3 +91,27 @@ setInt8 :: ∀ e s o l i .
            Nat i => Lt i l =>
            i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
 setInt8 offset i = runFn5 set "Int8" (toInt offset) i false
+
+-- | Fetch int16 value at a certain index in a `DataView` using a big-endian byte order
+getInt16be :: ∀ s o l i d e .
+           Nat i => Add i D1 d => Lt d l =>
+           i -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
+getInt16be offset = runFn4 get "Int16" (toInt offset) false
+
+-- | Store int16 value at a certain index in a `DataView` using a big-endian byte order
+setInt16be :: ∀ s o l i d e .
+           Nat i => Add i D1 d => Lt d l =>
+           i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+setInt16be offset i = runFn5 set "Int16" (toInt offset) i false
+
+-- | Fetch int16 value at a certain index in a `DataView` using a little-endian byte order
+getInt16le :: ∀ s o l i d e .
+           Nat i => Add i D1 d => Lt d l =>
+           i -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
+getInt16le offset = runFn4 get "Int16" (toInt offset) true
+
+-- | Store int16 value at a certain index in a `DataView` using a little-endian byte order
+setInt16le :: ∀ s o l i d e .
+           Nat i => Add i D1 d => Lt d l =>
+           i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+setInt16le offset i = runFn5 set "Int16" (toInt offset) i true
