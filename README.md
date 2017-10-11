@@ -9,6 +9,16 @@ Work in progress:
 - [x] ArrayBuffer
 - [ ] DataView
 
+  - [x] Int8
+  - [x] Int16
+  - [x] Int32
+  - [ ] Uint8C
+  - [ ] UInt8
+  - [ ] UInt16
+  - [ ] UInt32
+  - [ ] Float32
+  - [ ] Float64
+
 ### Related Links
 
 * [Typed Arrays: Binary Data in the Browser](https://www.html5rocks.com/en/tutorials/webgl/typed_arrays/)
