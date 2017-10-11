@@ -15,6 +15,10 @@ module Data.ArrayBuffer.DataView
   , setInt16be
   , getInt16le
   , setInt16le
+  , getInt32be
+  , setInt32be
+  , getInt32le
+  , setInt32le
   ) where
 
 import Control.Monad.Eff (Eff)
@@ -23,7 +27,7 @@ import Data.Function ((>>>))
 import Data.Function.Uncurried (Fn3, Fn4, Fn5, runFn3, runFn4, runFn5)
 import Data.Semigroup ((<>))
 import Data.Show (class Show, show)
-import Data.Typelevel.Num (class Add, class Lt, class LtEq, class Nat, class Pos, D0, D1, toInt)
+import Data.Typelevel.Num (class Add, class Lt, class LtEq, class Nat, class Pos, D0, D1, D3, toInt)
 import Data.Typelevel.Undefined (undefined)
 import Data.Unit (Unit)
 
@@ -80,6 +84,7 @@ foreign import set :: ∀ e s o l r.
 
 -- TODO: custom type error messages
 
+
 -- | Fetch int8 value at a certain index in a `DataView`.
 getInt8 :: ∀ e s o l i .
            Nat i => Lt i l =>
@@ -91,6 +96,7 @@ setInt8 :: ∀ e s o l i .
            Nat i => Lt i l =>
            i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
 setInt8 offset i = runFn5 set "Int8" (toInt offset) i false
+
 
 -- | Fetch int16 value at a certain index in a `DataView` using a big-endian byte order
 getInt16be :: ∀ s o l i d e .
@@ -115,3 +121,28 @@ setInt16le :: ∀ s o l i d e .
            Nat i => Add i D1 d => Lt d l =>
            i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
 setInt16le offset i = runFn5 set "Int16" (toInt offset) i true
+
+
+-- | Fetch int32 value at a certain index in a `DataView` using a big-endian byte order
+getInt32be :: ∀ s o l i d e .
+           Nat i => Add i D3 d => Lt d l =>
+           i -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
+getInt32be offset = runFn4 get "Int32" (toInt offset) false
+
+-- | Store int32 value at a certain index in a `DataView` using a big-endian byte order
+setInt32be :: ∀ s o l i d e .
+           Nat i => Add i D3 d => Lt d l =>
+           i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+setInt32be offset i = runFn5 set "Int32" (toInt offset) i false
+
+-- | Fetch int32 value at a certain index in a `DataView` using a little-endian byte order
+getInt32le :: ∀ s o l i d e .
+           Nat i => Add i D3 d => Lt d l =>
+           i -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
+getInt32le offset = runFn4 get "Int32" (toInt offset) true
+
+-- | Store int32 value at a certain index in a `DataView` using a little-endian byte order
+setInt32le :: ∀ s o l i d e .
+           Nat i => Add i D3 d => Lt d l =>
+           i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+setInt32le offset i = runFn5 set "Int32" (toInt offset) i true

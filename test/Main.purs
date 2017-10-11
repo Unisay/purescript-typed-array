@@ -7,8 +7,8 @@ import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Random (RANDOM)
 import Data.ArrayBuffer (ARRAY_BUFFER, byteLength, isView, mkArrayBuffer, slice)
-import Data.ArrayBuffer.DataView (getInt16be, getInt16le, getInt8, setInt16be, setInt16le, setInt8, view, viewWhole)
-import Data.Typelevel.Num (d0, d1, d2, d20, d3, d4, d40, d42)
+import Data.ArrayBuffer.DataView (getInt16be, getInt16le, getInt32be, getInt32le, getInt8, setInt16be, setInt16le, setInt32be, setInt32le, setInt8, view, viewWhole)
+import Data.Typelevel.Num (d0, d1, d2, d20, d3, d4, d40, d42, d6, d7)
 import Test.Unit (suite, test)
 import Test.Unit.Assert (assertFalse, equal)
 import Test.Unit.Console (TESTOUTPUT)
@@ -57,18 +57,50 @@ main = runTest do
       b3 <- liftEff $ getInt8 d2 dataView
       [0, 42, 0] `equal` [b1, b2, b3]
 
+-- 0---------1---------2---------3---------4
+--  ____ ____ 0000 1111 1111 0000 ____ ____ = 4080
+--  0000 0000 0000 1111 ____ ____ ____ ____ = 15
+--  ____ ____ ____ ____ 1111 0000 0000 0000 = -4096
     test "setInt16be / getInt16be" do
       arrayBuffer <- liftEff $ mkArrayBuffer d4
       let dataView = viewWhole arrayBuffer
-      liftEff $ setInt16be d1 4080 dataView  -- | ____ 1111 1111 ____ = 4080
-      w1 <- liftEff $ getInt16be d0 dataView -- | 0000 1111 ____ ____ = 15
-      w2 <- liftEff $ getInt16be d2 dataView -- | ---- ---- 1111 0000 = -4096
+      liftEff $ setInt16be d1 4080 dataView
+      w1 <- liftEff $ getInt16be d0 dataView
+      w2 <- liftEff $ getInt16be d2 dataView
       [15, -4096] `equal` [w1, w2]
 
+-- 0---------1---------2---------3---------4
+--  ____ ____ 0000 1111 1111 0000 ____ ____ = 4080
+--  0000 0000 0000 1111 ____ ____ ____ ____ = -4096 in le
+--  ____ ____ ____ ____ 1111 0000 0000 0000 = 15 in le
     test "setInt16le / getInt16le" do
       arrayBuffer <- liftEff $ mkArrayBuffer d4
       let dataView = viewWhole arrayBuffer
-      liftEff $ setInt16le d1 4080 dataView  -- | ____ 1111 1111 ____ = 4080
-      w1 <- liftEff $ getInt16le d0 dataView -- | 0000 1111 ____ ____ = -4096 in le
-      w2 <- liftEff $ getInt16le d2 dataView -- | ____ ____ 1111 0000 = 15 in le
+      liftEff $ setInt16le d1 4080 dataView
+      w1 <- liftEff $ getInt16le d0 dataView
+      w2 <- liftEff $ getInt16le d2 dataView
       [-4096, 15] `equal` [w1, w2]
+
+-- 0---------1---------2---------3---------4---------5---------6---------7
+--  ____ ____ 0000 1000 0000 0100 0000 0010 0000 0001 ____ ____ ____ ____ = 134480385
+--  0000 0000 0000 1000 0000 0100 0000 0010 ____ ____ ____ ____ ____ ____ = 525314
+--  ____ ____ ____ ____ 0000 0100 0000 0010 0000 0001 0000 0000 ____ ____ = 67240192
+    test "setInt32be / getInt32be" do
+      arrayBuffer <- liftEff $ mkArrayBuffer d7
+      let dataView = viewWhole arrayBuffer
+      liftEff $ setInt32be d1 134480385 dataView
+      w1 <- liftEff $ getInt32be d0 dataView
+      w2 <- liftEff $ getInt32be d2 dataView
+      [525314, 67240192] `equal` [w1, w2]
+
+-- 0---------1---------2---------3---------4---------5---------6---------7
+--  ____ ____ 0000 1000 0000 0100 0000 0010 0000 0001 ____ ____ ____ ____ = 134480385
+--  0000 0000 0000 1000 0000 0100 0000 0010 ____ ____ ____ ____ ____ ____ = 67240192 in le
+--  ____ ____ ____ ____ 0000 0100 0000 0010 0000 0001 0000 0000 ____ ____ = 525314 in le
+    test "setInt32le / getInt32le" do
+      arrayBuffer <- liftEff $ mkArrayBuffer d6
+      let dataView = viewWhole arrayBuffer
+      liftEff $ setInt32le d1 134480385 dataView
+      w1 <- liftEff $ getInt32le d0 dataView
+      w2 <- liftEff $ getInt32le d2 dataView
+      [67240192, 525314] `equal` [w1, w2]
