@@ -4,20 +4,17 @@
 
 This library uses [type-level natural numbers](https://pursuit.purescript.org/packages/purescript-typelevel/3.0.0/docs/Data.Typelevel.Num) to represent typed array sizes, indexes and their view boundaries.
 
-Work in progress:
-
 - [x] ArrayBuffer
-- [ ] DataView
+- [x] DataView
 
-  - [x] Int8
+  - [x] getInt8
   - [x] Int16
   - [x] Int32
-  - [ ] Uint8C
   - [x] UInt8
   - [x] UInt16
   - [x] UInt32
-  - [ ] Float32
-  - [ ] Float64
+  - [x] Float32
+  - [x] Float64
 
 ### Related Links
 
