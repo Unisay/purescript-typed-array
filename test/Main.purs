@@ -42,11 +42,11 @@ main = runTest do
 
     test "viewWhole" do
       arrayBuffer <- liftEff $ mkArrayBuffer d2
-      "DataView[2, 0, 2]" `equal` show (viewWhole arrayBuffer)
+      "DataView[0, 2]" `equal` show (viewWhole arrayBuffer)
 
     test "view" do
       arrayBuffer <- liftEff $ mkArrayBuffer d3
-      "DataView[3, 1, 2]" `equal` show (view d1 d2 arrayBuffer)
+      "DataView[1, 2]" `equal` show (view d1 d2 arrayBuffer)
 
     test "setInt8 / getInt8" do
       arrayBuffer <- liftEff $ mkArrayBuffer d3

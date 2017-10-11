@@ -8,6 +8,10 @@ exports._view = function(offset, length, arrayBuffer) {
   return new DataView(arrayBuffer, offset, length);
 }
 
+exports.byteSize = function(dataView) {
+  return dataView.byteSize;
+}
+
 exports.buffer = function(dataView) {
   return dataView.buffer;
 }

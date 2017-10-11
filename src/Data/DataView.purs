@@ -6,7 +6,6 @@ module Data.ArrayBuffer.DataView
   , byteSize
   , byteLength
   , byteOffset
-  , byteSize'
   , byteLength'
   , byteOffset'
   , getInt8
@@ -33,116 +32,110 @@ import Data.Unit (Unit)
 
 type Endianness = Boolean
 
--- | 1st Type - type-level natural number representing a size of the underlying `ArrayBuffer`
--- | 2nd Type - type-level natural number representing an offset in the underlying `ArrayBuffer`
+-- | 1st Type - type-level natural number representing an offset in the underlying `ArrayBuffer`
 -- | 2nd Type - type-level natural number representing a length of the `DataView`
-foreign import data DataView :: Type -> Type -> Type -> Type
+foreign import data DataView :: Type -> Type -> Type
 
-instance showDataView :: (Nat s, Nat o, Nat l) => Show (DataView s o l) where
-  show dv = "DataView[" <> show (byteSize   dv) <>
-                   ", " <> show (byteOffset dv) <>
+instance showDataView :: (Nat o, Nat l) => Show (DataView o l) where
+  show dv = "DataView[" <> show (byteOffset dv) <>
                    ", " <> show (byteLength dv) <>
                    "]"
 
-foreign import viewWhole :: ∀ s. ArrayBuffer s -> DataView s D0 s
+foreign import viewWhole :: ∀ s. ArrayBuffer s -> DataView D0 s
 
-foreign import _view :: ∀ s o l. Fn3 Int Int (ArrayBuffer s) (DataView s o l)
+foreign import _view :: ∀ s o l. Fn3 Int Int (ArrayBuffer s) (DataView o l)
 
 view :: ∀ s o l e. Nat o => Pos l => Add o l e => Lt o l => LtEq e s =>
-                  o -> l -> ArrayBuffer s -> DataView s o l
+                  o -> l -> ArrayBuffer s -> DataView o l
 view o l b = runFn3 _view (toInt o) (toInt l) b
 
 -- | `ArrayBuffer` being mapped by the view.
-foreign import buffer :: ∀ s o l. DataView s o l -> ArrayBuffer s
+foreign import buffer :: ∀ s o l. DataView o l -> ArrayBuffer s
 
 -- | Represents the size of the underlying `ArrayBuffer`
-byteSize :: ∀ s o l. Nat s => DataView s o l -> Int
-byteSize = byteSize' >>> toInt
-
-byteSize' :: ∀ s o l. Nat s => DataView s o l -> s
-byteSize' _ = undefined
+foreign import byteSize :: ∀ o l. DataView o l -> Int
 
 -- | Represents the offset of this view from the start of its `ArrayBuffer`
-byteOffset :: ∀ s o l. Nat o => DataView s o l -> Int
+byteOffset :: ∀ o l. Nat o => DataView o l -> Int
 byteOffset = byteOffset' >>> toInt
 
-byteOffset' :: ∀ s o l. Nat o => DataView s o l -> o
+byteOffset' :: ∀ o l. Nat o => DataView o l -> o
 byteOffset' _ = undefined
 
 -- | Represents the length of this view
-byteLength :: ∀ s o l. Nat l => DataView s o l -> Int
+byteLength :: ∀ o l. Nat l => DataView o l -> Int
 byteLength = byteLength' >>> toInt
 
-byteLength' :: ∀ s o l. Nat l => DataView s o l -> l
+byteLength' :: ∀ o l. Nat l => DataView o l -> l
 byteLength' _ = undefined
 
-foreign import get :: ∀ e s o l r.
-                      Fn4 String Int Endianness (DataView s o l) (Eff (arrayBuffer :: ARRAY_BUFFER | e) r)
+foreign import get :: ∀ e o l r.
+                      Fn4 String Int Endianness (DataView o l) (Eff (arrayBuffer :: ARRAY_BUFFER | e) r)
 
-foreign import set :: ∀ e s o l r.
-                      Fn5 String Int r Endianness (DataView s o l) (Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit)
+foreign import set :: ∀ e o l r.
+                      Fn5 String Int r Endianness (DataView o l) (Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit)
 
 -- TODO: custom type error messages
 
 
 -- | Fetch int8 value at a certain index in a `DataView`.
-getInt8 :: ∀ e s o l i .
+getInt8 :: ∀ e o l i .
            Nat i => Lt i l =>
-           i -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
+           i -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
 getInt8 offset = runFn4 get "Int8" (toInt offset) false
 
 -- | Store int8 value at a certain index in a `DataView`.
-setInt8 :: ∀ e s o l i .
+setInt8 :: ∀ e o l i .
            Nat i => Lt i l =>
-           i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+           i -> Int -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
 setInt8 offset i = runFn5 set "Int8" (toInt offset) i false
 
 
 -- | Fetch int16 value at a certain index in a `DataView` using a big-endian byte order
-getInt16be :: ∀ s o l i d e .
+getInt16be :: ∀ o l i d e .
            Nat i => Add i D1 d => Lt d l =>
-           i -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
+           i -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
 getInt16be offset = runFn4 get "Int16" (toInt offset) false
 
 -- | Store int16 value at a certain index in a `DataView` using a big-endian byte order
-setInt16be :: ∀ s o l i d e .
+setInt16be :: ∀ o l i d e .
            Nat i => Add i D1 d => Lt d l =>
-           i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+           i -> Int -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
 setInt16be offset i = runFn5 set "Int16" (toInt offset) i false
 
 -- | Fetch int16 value at a certain index in a `DataView` using a little-endian byte order
-getInt16le :: ∀ s o l i d e .
+getInt16le :: ∀ o l i d e .
            Nat i => Add i D1 d => Lt d l =>
-           i -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
+           i -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
 getInt16le offset = runFn4 get "Int16" (toInt offset) true
 
 -- | Store int16 value at a certain index in a `DataView` using a little-endian byte order
-setInt16le :: ∀ s o l i d e .
+setInt16le :: ∀ o l i d e .
            Nat i => Add i D1 d => Lt d l =>
-           i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+           i -> Int -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
 setInt16le offset i = runFn5 set "Int16" (toInt offset) i true
 
 
 -- | Fetch int32 value at a certain index in a `DataView` using a big-endian byte order
-getInt32be :: ∀ s o l i d e .
+getInt32be :: ∀ o l i d e .
            Nat i => Add i D3 d => Lt d l =>
-           i -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
+           i -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
 getInt32be offset = runFn4 get "Int32" (toInt offset) false
 
 -- | Store int32 value at a certain index in a `DataView` using a big-endian byte order
-setInt32be :: ∀ s o l i d e .
+setInt32be :: ∀ o l i d e .
            Nat i => Add i D3 d => Lt d l =>
-           i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+           i -> Int -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
 setInt32be offset i = runFn5 set "Int32" (toInt offset) i false
 
 -- | Fetch int32 value at a certain index in a `DataView` using a little-endian byte order
-getInt32le :: ∀ s o l i d e .
+getInt32le :: ∀ o l i d e .
            Nat i => Add i D3 d => Lt d l =>
-           i -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
+           i -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Int
 getInt32le offset = runFn4 get "Int32" (toInt offset) true
 
 -- | Store int32 value at a certain index in a `DataView` using a little-endian byte order
-setInt32le :: ∀ s o l i d e .
+setInt32le :: ∀ o l i d e .
            Nat i => Add i D3 d => Lt d l =>
-           i -> Int -> DataView s o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+           i -> Int -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
 setInt32le offset i = runFn5 set "Int32" (toInt offset) i true
