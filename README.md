@@ -9,7 +9,7 @@ This library uses [type-level natural numbers](https://pursuit.purescript.org/pa
 - [x] ArrayBuffer
 - [x] DataView
 
-  - [x] getInt8
+  - [x] Int8
   - [x] Int16
   - [x] Int32
   - [x] UInt8
