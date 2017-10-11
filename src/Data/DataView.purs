@@ -16,6 +16,10 @@ module Data.ArrayBuffer.DataView
   , setInt16be
   , getInt16le
   , setInt16le
+  , getUint16be
+  , setUint16be
+  , getUint16le
+  , setUint16le
   , getInt32be
   , setInt32be
   , getInt32le
@@ -129,6 +133,29 @@ setInt16le :: ∀ o l i d e .
            i -> Int -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
 setInt16le offset i = runFn5 set "Int16" (toInt offset) i true
 
+-- | Fetch int16 value at a certain index in a `DataView` using a big-endian byte order
+getUint16be :: ∀ o l i d e .
+           Nat i => Add i D1 d => Lt d l =>
+           i -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) UInt
+getUint16be offset = runFn4 get "Uint16" (toInt offset) false
+
+-- | Store int16 value at a certain index in a `DataView` using a big-endian byte order
+setUint16be :: ∀ o l i d e .
+           Nat i => Add i D1 d => Lt d l =>
+           i -> UInt -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+setUint16be offset i = runFn5 set "Uint16" (toInt offset) i false
+
+-- | Fetch int16 value at a certain index in a `DataView` using a little-endian byte order
+getUint16le :: ∀ o l i d e .
+           Nat i => Add i D1 d => Lt d l =>
+           i -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) UInt
+getUint16le offset = runFn4 get "Uint16" (toInt offset) true
+
+-- | Store int16 value at a certain index in a `DataView` using a little-endian byte order
+setUint16le :: ∀ o l i d e .
+           Nat i => Add i D1 d => Lt d l =>
+           i -> UInt -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+setUint16le offset i = runFn5 set "Uint16" (toInt offset) i true
 
 -- | Fetch int32 value at a certain index in a `DataView` using a big-endian byte order
 getInt32be :: ∀ o l i d e .
