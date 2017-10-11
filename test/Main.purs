@@ -7,7 +7,7 @@ import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Random (RANDOM)
 import Data.ArrayBuffer (ARRAY_BUFFER, byteLength, isView, mkArrayBuffer, slice)
-import Data.ArrayBuffer.DataView (getInt16be, getInt16le, getInt32be, getInt32le, getInt8, getUint16be, getUint16le, getUint8, setInt16be, setInt16le, setInt32be, setInt32le, setInt8, setUint16be, setUint16le, setUint8, view, viewWhole)
+import Data.ArrayBuffer.DataView (getInt16be, getInt16le, getInt32be, getInt32le, getInt8, getUint16be, getUint16le, getUint32be, getUint32le, getUint8, setInt16be, setInt16le, setInt32be, setInt32le, setInt8, setUint16be, setUint16le, setUint32be, setUint32le, setUint8, view, viewWhole)
 import Data.Typelevel.Num (d0, d1, d2, d20, d3, d4, d40, d42, d6, d7)
 import Data.UInt (fromInt)
 import Test.Unit (suite, test)
@@ -140,3 +140,27 @@ main = runTest do
       w1 <- liftEff $ getInt32le d0 dataView
       w2 <- liftEff $ getInt32le d2 dataView
       [67240192, 525314] `equal` [w1, w2]
+
+-- 0---------1---------2---------3---------4---------5---------6---------7
+--  ____ ____ 0000 1000 0000 0100 0000 0010 0000 0001 ____ ____ ____ ____ = 134480385
+--  0000 0000 0000 1000 0000 0100 0000 0010 ____ ____ ____ ____ ____ ____ = 525314
+--  ____ ____ ____ ____ 0000 0100 0000 0010 0000 0001 0000 0000 ____ ____ = 67240192
+    test "setUint32be / getUint32be" do
+      arrayBuffer <- liftEff $ mkArrayBuffer d7
+      let dataView = viewWhole arrayBuffer
+      liftEff $ setUint32be d1 (fromInt 134480385) dataView
+      w1 <- liftEff $ getUint32be d0 dataView
+      w2 <- liftEff $ getUint32be d2 dataView
+      [fromInt 525314, fromInt 67240192] `equal` [w1, w2]
+
+-- 0---------1---------2---------3---------4---------5---------6---------7
+--  ____ ____ 0000 1000 0000 0100 0000 0010 0000 0001 ____ ____ ____ ____ = 134480385
+--  0000 0000 0000 1000 0000 0100 0000 0010 ____ ____ ____ ____ ____ ____ = 67240192 in le
+--  ____ ____ ____ ____ 0000 0100 0000 0010 0000 0001 0000 0000 ____ ____ = 525314 in le
+    test "setUint32le / getUint32le" do
+      arrayBuffer <- liftEff $ mkArrayBuffer d6
+      let dataView = viewWhole arrayBuffer
+      liftEff $ setUint32le d1 (fromInt 134480385) dataView
+      w1 <- liftEff $ getUint32le d0 dataView
+      w2 <- liftEff $ getUint32le d2 dataView
+      [fromInt 67240192, fromInt 525314] `equal` [w1, w2]

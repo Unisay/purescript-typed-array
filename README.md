@@ -15,7 +15,7 @@ Work in progress:
   - [ ] Uint8C
   - [x] UInt8
   - [x] UInt16
-  - [ ] UInt32
+  - [x] UInt32
   - [ ] Float32
   - [ ] Float64
 
