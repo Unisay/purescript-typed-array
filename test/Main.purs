@@ -7,7 +7,7 @@ import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Random (RANDOM)
 import Data.ArrayBuffer (ARRAY_BUFFER, byteLength, isView, mkArrayBuffer, slice)
-import Data.ArrayBuffer.DataView (getInt16be, getInt16le, getInt32be, getInt32le, getInt8, getUint16be, getUint16le, getUint32be, getUint32le, getUint8, setInt16be, setInt16le, setInt32be, setInt32le, setInt8, setUint16be, setUint16le, setUint32be, setUint32le, setUint8, view, viewWhole)
+import Data.ArrayBuffer.DataView as V
 import Data.Typelevel.Num (d0, d1, d2, d20, d3, d4, d40, d42, d6, d7)
 import Data.UInt (fromInt)
 import Test.Unit (suite, test)
@@ -43,30 +43,30 @@ main = runTest do
 
     test "viewWhole" do
       arrayBuffer <- liftEff $ mkArrayBuffer d2
-      "DataView[0, 2]" `equal` show (viewWhole arrayBuffer)
+      "DataView[0, 2]" `equal` show (V.viewWhole arrayBuffer)
 
     test "view" do
       arrayBuffer <- liftEff $ mkArrayBuffer d3
-      "DataView[1, 2]" `equal` show (view d1 d2 arrayBuffer)
+      "DataView[1, 2]" `equal` show (V.view d1 d2 arrayBuffer)
 
     -- TODO: test int8 overflow
 
     test "setInt8 / getInt8" do
       arrayBuffer <- liftEff $ mkArrayBuffer d3
-      let dataView = viewWhole arrayBuffer
-      liftEff $ setInt8 d1 127 dataView
-      b1 <- liftEff $ getInt8 d0 dataView
-      b2 <- liftEff $ getInt8 d1 dataView
-      b3 <- liftEff $ getInt8 d2 dataView
+      let dataView = V.viewWhole arrayBuffer
+      liftEff $ V.setInt8 d1 127 dataView
+      b1 <- liftEff $ V.getInt8 d0 dataView
+      b2 <- liftEff $ V.getInt8 d1 dataView
+      b3 <- liftEff $ V.getInt8 d2 dataView
       [0, 127, 0] `equal` [b1, b2, b3]
 
     test "setUint8 / getUint8" do
       arrayBuffer <- liftEff $ mkArrayBuffer d3
-      let dataView = viewWhole arrayBuffer
-      liftEff $ setUint8 d1 (fromInt 250) dataView
-      b1 <- liftEff $ getUint8 d0 dataView
-      b2 <- liftEff $ getUint8 d1 dataView
-      b3 <- liftEff $ getUint8 d2 dataView
+      let dataView = V.viewWhole arrayBuffer
+      liftEff $ V.setUint8 d1 (fromInt 250) dataView
+      b1 <- liftEff $ V.getUint8 d0 dataView
+      b2 <- liftEff $ V.getUint8 d1 dataView
+      b3 <- liftEff $ V.getUint8 d2 dataView
       [fromInt 0, fromInt 250, fromInt 0] `equal` [b1, b2, b3]
 
 -- 0---------1---------2---------3---------4
@@ -75,10 +75,10 @@ main = runTest do
 --  ____ ____ ____ ____ 1111 0000 0000 0000 = -4096
     test "setInt16be / getInt16be" do
       arrayBuffer <- liftEff $ mkArrayBuffer d4
-      let dataView = viewWhole arrayBuffer
-      liftEff $ setInt16be d1 4080 dataView
-      w1 <- liftEff $ getInt16be d0 dataView
-      w2 <- liftEff $ getInt16be d2 dataView
+      let dataView = V.viewWhole arrayBuffer
+      liftEff $ V.setInt16be d1 4080 dataView
+      w1 <- liftEff $ V.getInt16be d0 dataView
+      w2 <- liftEff $ V.getInt16be d2 dataView
       [15, -4096] `equal` [w1, w2]
 
 -- 0---------1---------2---------3---------4
@@ -87,10 +87,10 @@ main = runTest do
 --  ____ ____ ____ ____ 1111 0000 0000 0000 = 15 in le
     test "setInt16le / getInt16le" do
       arrayBuffer <- liftEff $ mkArrayBuffer d4
-      let dataView = viewWhole arrayBuffer
-      liftEff $ setInt16le d1 4080 dataView
-      w1 <- liftEff $ getInt16le d0 dataView
-      w2 <- liftEff $ getInt16le d2 dataView
+      let dataView = V.viewWhole arrayBuffer
+      liftEff $ V.setInt16le d1 4080 dataView
+      w1 <- liftEff $ V.getInt16le d0 dataView
+      w2 <- liftEff $ V.getInt16le d2 dataView
       [-4096, 15] `equal` [w1, w2]
 
 -- 0---------1---------2---------3---------4
@@ -99,10 +99,10 @@ main = runTest do
 --  ____ ____ ____ ____ 1111 0000 0000 0000 = 61440
     test "setUint16be / getUint16be" do
       arrayBuffer <- liftEff $ mkArrayBuffer d4
-      let dataView = viewWhole arrayBuffer
-      liftEff $ setUint16be d1 (fromInt 4080) dataView
-      w1 <- liftEff $ getUint16be d0 dataView
-      w2 <- liftEff $ getUint16be d2 dataView
+      let dataView = V.viewWhole arrayBuffer
+      liftEff $ V.setUint16be d1 (fromInt 4080) dataView
+      w1 <- liftEff $ V.getUint16be d0 dataView
+      w2 <- liftEff $ V.getUint16be d2 dataView
       [fromInt 15, fromInt 61440] `equal` [w1, w2]
 
 -- 0---------1---------2---------3---------4
@@ -111,10 +111,10 @@ main = runTest do
 --  ____ ____ ____ ____ 1111 0000 0000 0000 = 15 in le
     test "setUint16le / getUint16le" do
       arrayBuffer <- liftEff $ mkArrayBuffer d4
-      let dataView = viewWhole arrayBuffer
-      liftEff $ setUint16le d1 (fromInt 4080) dataView
-      w1 <- liftEff $ getUint16le d0 dataView
-      w2 <- liftEff $ getUint16le d2 dataView
+      let dataView = V.viewWhole arrayBuffer
+      liftEff $ V.setUint16le d1 (fromInt 4080) dataView
+      w1 <- liftEff $ V.getUint16le d0 dataView
+      w2 <- liftEff $ V.getUint16le d2 dataView
       [fromInt 61440, fromInt 15] `equal` [w1, w2]
 
 -- 0---------1---------2---------3---------4---------5---------6---------7
@@ -123,10 +123,10 @@ main = runTest do
 --  ____ ____ ____ ____ 0000 0100 0000 0010 0000 0001 0000 0000 ____ ____ = 67240192
     test "setInt32be / getInt32be" do
       arrayBuffer <- liftEff $ mkArrayBuffer d7
-      let dataView = viewWhole arrayBuffer
-      liftEff $ setInt32be d1 134480385 dataView
-      w1 <- liftEff $ getInt32be d0 dataView
-      w2 <- liftEff $ getInt32be d2 dataView
+      let dataView = V.viewWhole arrayBuffer
+      liftEff $ V.setInt32be d1 134480385 dataView
+      w1 <- liftEff $ V.getInt32be d0 dataView
+      w2 <- liftEff $ V.getInt32be d2 dataView
       [525314, 67240192] `equal` [w1, w2]
 
 -- 0---------1---------2---------3---------4---------5---------6---------7
@@ -135,10 +135,10 @@ main = runTest do
 --  ____ ____ ____ ____ 0000 0100 0000 0010 0000 0001 0000 0000 ____ ____ = 525314 in le
     test "setInt32le / getInt32le" do
       arrayBuffer <- liftEff $ mkArrayBuffer d6
-      let dataView = viewWhole arrayBuffer
-      liftEff $ setInt32le d1 134480385 dataView
-      w1 <- liftEff $ getInt32le d0 dataView
-      w2 <- liftEff $ getInt32le d2 dataView
+      let dataView = V.viewWhole arrayBuffer
+      liftEff $ V.setInt32le d1 134480385 dataView
+      w1 <- liftEff $ V.getInt32le d0 dataView
+      w2 <- liftEff $ V.getInt32le d2 dataView
       [67240192, 525314] `equal` [w1, w2]
 
 -- 0---------1---------2---------3---------4---------5---------6---------7
@@ -147,10 +147,10 @@ main = runTest do
 --  ____ ____ ____ ____ 0000 0100 0000 0010 0000 0001 0000 0000 ____ ____ = 67240192
     test "setUint32be / getUint32be" do
       arrayBuffer <- liftEff $ mkArrayBuffer d7
-      let dataView = viewWhole arrayBuffer
-      liftEff $ setUint32be d1 (fromInt 134480385) dataView
-      w1 <- liftEff $ getUint32be d0 dataView
-      w2 <- liftEff $ getUint32be d2 dataView
+      let dataView = V.viewWhole arrayBuffer
+      liftEff $ V.setUint32be d1 (fromInt 134480385) dataView
+      w1 <- liftEff $ V.getUint32be d0 dataView
+      w2 <- liftEff $ V.getUint32be d2 dataView
       [fromInt 525314, fromInt 67240192] `equal` [w1, w2]
 
 -- 0---------1---------2---------3---------4---------5---------6---------7
@@ -159,8 +159,8 @@ main = runTest do
 --  ____ ____ ____ ____ 0000 0100 0000 0010 0000 0001 0000 0000 ____ ____ = 525314 in le
     test "setUint32le / getUint32le" do
       arrayBuffer <- liftEff $ mkArrayBuffer d6
-      let dataView = viewWhole arrayBuffer
-      liftEff $ setUint32le d1 (fromInt 134480385) dataView
-      w1 <- liftEff $ getUint32le d0 dataView
-      w2 <- liftEff $ getUint32le d2 dataView
+      let dataView = V.viewWhole arrayBuffer
+      liftEff $ V.setUint32le d1 (fromInt 134480385) dataView
+      w1 <- liftEff $ V.getUint32le d0 dataView
+      w2 <- liftEff $ V.getUint32le d2 dataView
       [fromInt 67240192, fromInt 525314] `equal` [w1, w2]
