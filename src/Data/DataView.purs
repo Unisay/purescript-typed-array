@@ -10,6 +10,8 @@ module Data.ArrayBuffer.DataView
   , byteOffset'
   , getInt8
   , setInt8
+  , getUint8
+  , setUint8
   , getInt16be
   , setInt16be
   , getInt16le
@@ -28,6 +30,7 @@ import Data.Semigroup ((<>))
 import Data.Show (class Show, show)
 import Data.Typelevel.Num (class Add, class Lt, class LtEq, class Nat, class Pos, D0, D1, D3, toInt)
 import Data.Typelevel.Undefined (undefined)
+import Data.UInt (UInt)
 import Data.Unit (Unit)
 
 type Endianness = Boolean
@@ -90,6 +93,17 @@ setInt8 :: ∀ e o l i .
            i -> Int -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
 setInt8 offset i = runFn5 set "Int8" (toInt offset) i false
 
+-- | Fetch uint8 value at a certain index in a `DataView`.
+getUint8 :: ∀ e o l i .
+           Nat i => Lt i l =>
+           i -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) UInt
+getUint8 offset = runFn4 get "Uint8" (toInt offset) false
+
+-- | Store uint8 value at a certain index in a `DataView`.
+setUint8 :: ∀ e o l i .
+           Nat i => Lt i l =>
+           i -> UInt -> DataView o l -> Eff (arrayBuffer :: ARRAY_BUFFER | e) Unit
+setUint8 offset i = runFn5 set "Uint8" (toInt offset) i false
 
 -- | Fetch int16 value at a certain index in a `DataView` using a big-endian byte order
 getInt16be :: ∀ o l i d e .

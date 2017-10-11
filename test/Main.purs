@@ -7,8 +7,9 @@ import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Random (RANDOM)
 import Data.ArrayBuffer (ARRAY_BUFFER, byteLength, isView, mkArrayBuffer, slice)
-import Data.ArrayBuffer.DataView (getInt16be, getInt16le, getInt32be, getInt32le, getInt8, setInt16be, setInt16le, setInt32be, setInt32le, setInt8, view, viewWhole)
+import Data.ArrayBuffer.DataView (getInt16be, getInt16le, getInt32be, getInt32le, getInt8, getUint8, setInt16be, setInt16le, setInt32be, setInt32le, setInt8, setUint8, view, viewWhole)
 import Data.Typelevel.Num (d0, d1, d2, d20, d3, d4, d40, d42, d6, d7)
+import Data.UInt (fromInt)
 import Test.Unit (suite, test)
 import Test.Unit.Assert (assertFalse, equal)
 import Test.Unit.Console (TESTOUTPUT)
@@ -48,14 +49,25 @@ main = runTest do
       arrayBuffer <- liftEff $ mkArrayBuffer d3
       "DataView[1, 2]" `equal` show (view d1 d2 arrayBuffer)
 
+    -- TODO: test int8 overflow
+
     test "setInt8 / getInt8" do
       arrayBuffer <- liftEff $ mkArrayBuffer d3
       let dataView = viewWhole arrayBuffer
-      liftEff $ setInt8 d1 42 dataView
+      liftEff $ setInt8 d1 127 dataView
       b1 <- liftEff $ getInt8 d0 dataView
       b2 <- liftEff $ getInt8 d1 dataView
       b3 <- liftEff $ getInt8 d2 dataView
-      [0, 42, 0] `equal` [b1, b2, b3]
+      [0, 127, 0] `equal` [b1, b2, b3]
+
+    test "setUint8 / getUint8" do
+      arrayBuffer <- liftEff $ mkArrayBuffer d3
+      let dataView = viewWhole arrayBuffer
+      liftEff $ setUint8 d1 (fromInt 250) dataView
+      b1 <- liftEff $ getUint8 d0 dataView
+      b2 <- liftEff $ getUint8 d1 dataView
+      b3 <- liftEff $ getUint8 d2 dataView
+      [fromInt 0, fromInt 250, fromInt 0] `equal` [b1, b2, b3]
 
 -- 0---------1---------2---------3---------4
 --  ____ ____ 0000 1111 1111 0000 ____ ____ = 4080

@@ -13,7 +13,7 @@ Work in progress:
   - [x] Int16
   - [x] Int32
   - [ ] Uint8C
-  - [ ] UInt8
+  - [x] UInt8
   - [ ] UInt16
   - [ ] UInt32
   - [ ] Float32
