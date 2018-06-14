@@ -7,7 +7,7 @@
     "output"
   ],
   "dependencies": {
-    "purescript-typelevel": "https://github.com/whoadave/purescript-typelevel.git#master",
+    "purescript-typelevel": "^4.0.0",
     "purescript-maybe": "^4.0.0",
     "purescript-functors": "^3.0.0",
     "purescript-uint": "^4.0.0",
