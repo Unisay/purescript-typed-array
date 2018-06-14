@@ -1,13 +1,12 @@
 module Data.ArrayBuffer
-  ( ARRAY_BUFFER
-  , ArrayBuffer
+  ( ArrayBuffer
   , mkArrayBuffer
   , byteLength
   , slice
   , isView
   ) where
 
-import Control.Monad.Eff (kind Effect, Eff)
+import Effect (Effect)
 import Data.Function ((>>>))
 import Data.Function.Uncurried (Fn3, runFn3)
 import Data.Semigroup ((<>))
@@ -27,13 +26,13 @@ byteLength' _ = undefined
 foreign import isView :: ∀ n. ArrayBuffer n -> Boolean
 
 -- | Creates a new ArrayBuffer of a given length
-mkArrayBuffer :: ∀ e n. Nat n => n -> Eff (arrayBuffer :: ARRAY_BUFFER | e) (ArrayBuffer n)
+mkArrayBuffer :: ∀ n. Nat n => n -> Effect (ArrayBuffer n)
 mkArrayBuffer n = _arrayBuffer (toInt n)
 
 -- | Creates a new ArrayBuffer with a copy of the bytes of the given arrayBuffer
 -- | between beginByte (inclusive) and endByte (exclusive).
 -- | Changes to the original arrayBuffer do not affect the copy returned by slice
-slice :: ∀ e beginByte endByte size newSize.
+slice :: ∀ beginByte endByte size newSize.
          Nat beginByte =>
          Nat endByte =>
          GtEq endByte beginByte =>
@@ -41,18 +40,15 @@ slice :: ∀ e beginByte endByte size newSize.
            beginByte ->
            endByte ->
            ArrayBuffer size ->
-           Eff (arrayBuffer :: ARRAY_BUFFER | e) (ArrayBuffer newSize)
+           Effect (ArrayBuffer newSize)
 slice b e ab = runFn3 _slice (toInt b) (toInt e) ab
-
-
-foreign import data ARRAY_BUFFER :: Effect
 
 foreign import data ArrayBuffer :: Type -> Type
 
 instance showArrayBuffer :: Nat n => Show (ArrayBuffer n) where
   show ab = "ArrayBuffer[" <> show (byteLength ab) <> "]"
 
-foreign import _arrayBuffer :: ∀ e n. Int -> Eff (arrayBuffer :: ARRAY_BUFFER | e) (ArrayBuffer n)
+foreign import _arrayBuffer :: ∀ n. Int -> Effect (ArrayBuffer n)
 
-foreign import _slice :: ∀ e size newSize .
-                         Fn3 Int Int (ArrayBuffer size) (Eff (arrayBuffer :: ARRAY_BUFFER | e) (ArrayBuffer newSize))
+foreign import _slice :: ∀ size newSize .
+                         Fn3 Int Int (ArrayBuffer size) (Effect (ArrayBuffer newSize))
